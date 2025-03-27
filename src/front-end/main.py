@@ -18,17 +18,22 @@ st.title("IoT Farm Dashboard")
 # Exibir dados de temperatura
 st.header("Temperatura")
 temperature_data = fetch_data("temperature")
-
+temperature_data["created"] = pd.to_datetime(temperature_data["created"])
+temperature_data["created"] = temperature_data["created"].dt.strftime("%H:%M:%S")
 st.dataframe(temperature_data)
 
 # Exibir dados de umidade
 st.header("Umidade")
 humidity = fetch_data("humidity")
+humidity["created"] = pd.to_datetime(humidity["created"])
+humidity["created"] = humidity["created"].dt.strftime("%H:%M:%S")
 st.dataframe(humidity)
 
 # Exibir dados de luminosidade
 st.header("Luminosidade")
 brightness_data = fetch_data("brightness")
+brightness_data["created"] = pd.to_datetime(brightness_data["created"])
+brightness_data["created"] = brightness_data["created"].dt.strftime("%H:%M:%S")
 st.dataframe(brightness_data)
 
 # Gráficos
