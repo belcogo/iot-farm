@@ -1,0 +1,4 @@
+paho-mqtt
+pymongo
+streamlit
+pandas
