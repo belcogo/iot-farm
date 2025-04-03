@@ -8,6 +8,7 @@ mongo_client = MongoClient("mongodb://localhost:27017/")
 def on_connect(client, userdata, flags, rc):
     print("Conectado com código " + str(rc))
     client.subscribe("/sensor-iot-unisinos")
+    print("Conexão realizada com sucesso!")
 
 def on_message(client, userdata, msg):
     print(f"{msg.topic}: {msg.payload}")
@@ -15,54 +16,51 @@ def on_message(client, userdata, msg):
     payload = json.loads(msg.payload.decode("utf-8"))
 
     temperature = payload["temperature"]
-    umidity = payload["umidity"]
+    umidity = payload["humidity"]
     brightness = payload["brightness"]
+
+    send_information_to_sensor(temperature, umidity, brightness)
     
     handle_temperature(temperature)
     handle_umidity(umidity)
     handle_brightness(brightness)
+
+def send_information_to_sensor(temperature, umidity, brightness):
+    message_to_send = { "tempIsOutRange": is_temperature_out_range(temperature),
+                        "umiIsOutRange": is_umidity_out_range(umidity),
+                        "brigIsOutRange": is_temperature_out_range(brightness)}
+    
+    print(f"Mensagem enviada: {message_to_send}")
+    client.publish("/iot-temp-umi-brig-status", json.dumps(message_to_send), qos=2)
 
 def handle_temperature(temperature):
     db = mongo_client["iot_farm"]
     collection = db["temperature"]
     collection.insert_one({"temperature": temperature, "created": datetime.now()})
 
-    if temperature < 10 or temperature > 25:
-        print("Temperatura fora do intervalo ideal!")
-        # Enviar notificação para broker.
-    else:
-        print("Temperatura dentro do intervalo ideal!")
-        # Enviar notificação para broker.
-
 def handle_umidity(umidity):
     db = mongo_client["iot_farm"]
     collection = db["umidity"]
     collection.insert_one({"umidity": umidity, "created": datetime.now()})
 
-    if umidity < 70 or umidity > 80:
-        print("Humidade fora do intervalo ideal!")
-        # Enviar notificação para broker.
-    else:
-        print("Humidade dentro do intervalo ideal!")
-        # Enviar notificação para broker.
-
 def handle_brightness(brightness):
     db = mongo_client["iot_farm"]
     collection = db["brightness"]
     collection.insert_one({"brightness": brightness, "created": datetime.now()})
+    
+def is_temperature_out_range(temperature):
+    return (temperature < 10 or temperature > 25)
 
-    if brightness < 10:
-        print("Está denoite!")
-        # Enviar notificação para broker.
-    else:
-        print("Está de dia!")
-        # Enviar notificação para broker.
+def is_umidity_out_range(umidity):
+    return (umidity < 70 or umidity > 80)
+
+def is_brightness_out_range(brightness):
+    return (brightness < 10)
 
 if __name__ == "__main__":
     client = mqtt.Client()
     client.on_connect = on_connect
     client.on_message = on_message
-
-    # Conectar no broker MQTT 
+    client.username_pw_set("iot-broker", "iot-broker")
     client.connect("broker.emqx.io", 1883, 60)
     client.loop_forever()
