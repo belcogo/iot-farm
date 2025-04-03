@@ -7,7 +7,7 @@ mongo_client = MongoClient("mongodb://localhost:27017/")
 
 def on_connect(client, userdata, flags, rc):
     print("Conectado com código " + str(rc))
-    client.subscribe("/sensor-iot-unisinos")
+    client.subscribe("/sensor-iot-unisinos-send")
     print("Conexão realizada com sucesso!")
 
 def on_message(client, userdata, msg):
@@ -31,7 +31,7 @@ def send_information_to_sensor(temperature, umidity, brightness):
                         "brigIsOutRange": is_temperature_out_range(brightness)}
     
     print(f"Mensagem enviada: {message_to_send}")
-    client.publish("/iot-temp-umi-brig-status", json.dumps(message_to_send), qos=2)
+    client.publish("/sensor-iot-unisinos-receive", json.dumps(message_to_send), qos=2)
 
 def handle_temperature(temperature):
     db = mongo_client["iot_farm"]
@@ -40,8 +40,8 @@ def handle_temperature(temperature):
 
 def handle_umidity(umidity):
     db = mongo_client["iot_farm"]
-    collection = db["umidity"]
-    collection.insert_one({"umidity": umidity, "created": datetime.now()})
+    collection = db["humidity"]
+    collection.insert_one({"humidity": umidity, "created": datetime.now()})
 
 def handle_brightness(brightness):
     db = mongo_client["iot_farm"]
