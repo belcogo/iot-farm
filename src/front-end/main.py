@@ -1,6 +1,7 @@
 import streamlit as st
 from pymongo import MongoClient
 import pandas as pd
+import time
 
 # Conexão com o MongoDB
 mongo_client = MongoClient("mongodb://localhost:27017/")
@@ -46,3 +47,6 @@ if not humidity.empty:
     st.line_chart(humidity.set_index("created_formatted")["humidity"], use_container_width=True)
 if not brightness_data.empty:
     st.line_chart(brightness_data.set_index("created_formatted")["brightness"], use_container_width=True)
+
+time.sleep(5)
+st.rerun()
