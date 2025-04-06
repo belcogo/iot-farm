@@ -29,6 +29,8 @@ A partir do uso do `Streamlit`, uma biblioteca do Python, é possível vizualiza
 
 ### Tecnologias/Hardware Utilizado
 
+- IoT
+- Broker MQTTX
 - ESP32 (ADC)
 - LDR
 - DHT22
