@@ -30,7 +30,7 @@ def send_information_to_sensor(temperature, umidity, brightness):
                         "umiIsOutRange": is_umidity_out_range(umidity),
                         "brigIsOutRange": is_temperature_out_range(brightness)}
     
-    print(f"Mensagem enviada: {message_to_send}")
+    print(f"\nMensagem enviada: {message_to_send}")
     client.publish("/sensor-iot-unisinos-receive", json.dumps(message_to_send), qos=2)
 
 def handle_temperature(temperature):
@@ -58,7 +58,7 @@ def is_brightness_out_range(brightness):
     return (brightness < 10)
 
 if __name__ == "__main__":
-    client = mqtt.Client()
+    client = mqtt.Client(client_id="PythonClient-iot-unisinos-1")
     client.on_connect = on_connect
     client.on_message = on_message
     client.username_pw_set("iot-broker", "iot-broker")
